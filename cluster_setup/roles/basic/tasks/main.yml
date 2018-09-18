@@ -73,4 +73,29 @@
     block: |
       * soft nofile 65536
       * hard nofile 200000
+  register: task_result
+
+- name: "printing stdout for debug"
+  when: verbose
+  debug:
+    var: task_result.stdout_lines
+
+- name: "printing stdout for debug"
+  when: verbose
+  debug:
+    var: task_result.stderr_lines
+
+- name: "Reboot immediately if there was a change."
+  shell: "sleep 5 && reboot"
+  async: 1
+  poll: 0
+  when: task_result is changed
+
+- name: "Wait for the reboot to complete if there was a change"
+  wait_for_connection:
+    connect_timeout: "20"
+    sleep: "5"
+    delay: "5"
+    timeout: "300"
+  when: task_result is changed
 
