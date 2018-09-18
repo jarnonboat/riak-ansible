@@ -1,0 +1,18 @@
+riak01    ansible_host=riak01    public_ip=10.0.2.15     private_ip=192.168.56.101
+riak02    ansible_host=riak02    public_ip=10.0.2.15     private_ip=192.168.56.102
+riak03    ansible_host=riak03    public_ip=10.0.2.15     private_ip=192.168.56.103
+
+[coordinator]
+riak01
+
+[node]
+riak[02:03]
+
+[all:vars]
+normal_user                 = amoeba
+yum_proxy                   = http://pt.wni.co.jp:8080
+public_network_interface    = enp0s3
+private_network_interface   = enp0s8
+use_proxy                   = True
+dns_resolvable_host         = False
+verbose                     = True

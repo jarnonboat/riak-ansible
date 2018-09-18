@@ -1,0 +1,8 @@
+- name: "Removing proxy from k8s manifest"
+  when: use_proxy
+  script: ../files/post-task.sh
+  args:
+    creates: "/etc/kubernetes/backup/kube-apiserver.yaml.bak"
+  notify:
+    - kubelet-restart 
+    - wait-for-api-server

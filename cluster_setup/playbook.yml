@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: true
+  roles:
+  - basic
+
+- hosts: node
+  become: true
+  roles:
+  - master-node
+
+- hosts: coordinator
+  become: true
+  roles:
+  - worker-node

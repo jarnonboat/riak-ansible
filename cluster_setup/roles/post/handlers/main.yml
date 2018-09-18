@@ -1,0 +1,7 @@
+- name: kubelet-restart
+  service: name=kubelet state=restarted
+
+- name: wait-for-api-server
+  wait_for:
+    port: 6443
+    delay: 10

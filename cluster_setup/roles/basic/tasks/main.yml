@@ -1,0 +1,76 @@
+- name: "Adding each host private IP to /etc/hosts"
+  when: not dns_resolvable_host
+  lineinfile: 
+    path: /etc/hosts 
+    line: "{{ hostvars[item]['private_ip'] }} {{ hostvars[item]['ansible_host'] }}"
+  with_items: "{{ groups['all'] }}"
+
+- name: "Adding PT proxy to /etc/yum.conf"
+  when: use_proxy
+  lineinfile:
+    path: /etc/yum.conf
+    line: "proxy={{ yum_proxy }}"
+
+- name: "Adding proxy to /etc/environment"
+  when: use_proxy
+  blockinfile:
+    dest: /etc/environment
+    backup: yes
+    marker: "# {mark} ANSIBLE MANAGED BLOCK "
+    block: |
+      http_proxy=http://pt.wni.co.jp:8080
+      https_proxy=http://pt.wni.co.jp:8080
+      no_proxy=localhost,127.0.0.1,riak1,riak2,riak3
+  
+- name: "Installing EPEL"
+  yum: 
+    pkg: epel-release 
+    state: installed
+
+- name: "upgrade all packages"
+  yum: 
+    pkg: '*'
+    state: latest
+  
+- name: "Installing addtional softwares"
+  yum: 
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+    - vim
+    - htop
+    - system-storage-manager
+    - wget
+    - yum-utils
+
+- name: "Configuring firewall for riak http"
+  firewalld:
+    port: 8098/tcp
+    permanent: true
+    state: enabled
+
+- name: "Configuring firewall for riak protobuff"
+  firewalld:
+    port: 8087/tcp
+    permanent: true
+    state: enabled
+  
+- name: "Copying riak kernel config file"
+  copy:
+    src: ../files/sysctl.conf
+    dest: /etc/sysctl.d/
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - sysctl-update
+
+- name: "Configuring resources limit"
+  blockinfile:
+    dest: /etc/security/limits.conf
+    backup: yes
+    marker: "# {mark} ANSIBLE MANAGED BLOCK "
+    block: |
+      * soft nofile 65536
+      * hard nofile 200000
+
