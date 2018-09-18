@@ -69,7 +69,7 @@
     mode: 0644
   register: copy_result
 
-- name: "Reload config immediately if there was a change"
+- name: "Reload kernel immediately if there was a change"
   command: "sysctl --system"
   when: copy_result is changed
 
@@ -105,3 +105,36 @@
   loop:
     - { key: '^nodename = ', value: 'nodename = riak@{{ private_ip }}' }
     - { key: '^listener.http.internal = ', value: 'listener.http.internal = 0.0.0.0:8098'}
+    - { key: '^listener.protobuf.internal = ', value: 'listener.protobuf.internal = 0.0.0.0:8087'}
+    - { key: '^platform_data_dir = ', value: 'platform_data_dir = /usr/amoeba/riak/db'}
+    - { key: '^platform_log_dir = ', value: 'platform_log_dir = /usr/amoeba/riak/log'}
+    - { key: '^storage_backend = ', value: 'storage_backend = leveldb'}
+    - { key: '^secure_referer_check = ', value: 'secure_referer_check = off'}
+    - { key: '^leveldb.expiration = ', value: 'leveldb.expiration = on'}
+    - { key: '^leveldb.expiration.retention_time = ', value: 'leveldb.expiration.retention_time = 8d'}
+    - { key: '^leveldb.expiration.mode  = ', value: 'leveldb.expiration.mode = whole_file'}
+  register: riak_config_result
+
+- name: "Create a riak db directory if it doesn't exist"
+  file:
+    path: /usr/amoeba/riak/db
+    state: directory
+    owner: riak
+    group: riak
+    mode: 0755
+
+- name: "Create a riak logs directory if it doesn't exist"
+  file:
+    path: /usr/amoeba/riak/log
+    state: directory
+    owner: riak
+    group: riak
+    mode: 0755
+
+- name: "Reload riak config immediately if there was a change"
+  when: riak_config_result is changed
+  command: "chkconfig riak on"
+
+- name: "Starting riak service"
+  riak:
+    wait_for_service: kv

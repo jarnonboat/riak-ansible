@@ -1,0 +1,13 @@
+- name: "View joining request"
+  riak:
+    command: plan
+
+- name: "waiting for confirmation"
+  vars_prompt:
+    - name: "doCommit"
+      prompt: "Do you want to do commit (y/n): "
+
+- name: "Commit joning request"
+  when: doCommit == 'y'
+  riak: 
+    command: commit

@@ -1,0 +1,4 @@
+- name: "Joining member to coordinator node"
+  riak:
+    command: join
+    target_node: riak@{{ group['coordinator']['private_ip'] }}

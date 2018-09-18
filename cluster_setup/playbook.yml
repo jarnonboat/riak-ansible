@@ -7,9 +7,9 @@
 - hosts: node
   become: true
   roles:
-  - master-node
+  - node
 
 - hosts: coordinator
   become: true
   roles:
-  - worker-node
+  - coordinator
