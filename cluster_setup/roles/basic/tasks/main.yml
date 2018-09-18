@@ -136,5 +136,8 @@
   command: "chkconfig riak on"
 
 - name: "Starting riak service"
+  command: "riak start"
+
+- name: "Waiting for riak service"
   riak:
     wait_for_service: kv

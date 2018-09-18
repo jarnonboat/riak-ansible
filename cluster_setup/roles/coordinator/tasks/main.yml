@@ -3,6 +3,5 @@
     command: plan
 
 - name: "Commit joning request"
-  when: doCommit == 'y'
   riak: 
     command: commit
