@@ -1,14 +1,2 @@
-- name: docker-reload
-  systemd: daemon_reload=yes
-
-- name: docker-restart
-  service: name=docker state=restarted
-
-- name: kubelet-enable
-  service: name=kubelet state=started enabled=yes
-
-- name: kubelet-restart
-  service: name=kubelet state=restarted
-
 - name: sysctl-update
   shell: "sysctl --system"
