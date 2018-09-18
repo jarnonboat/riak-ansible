@@ -54,7 +54,12 @@
     port: 8087/tcp
     permanent: true
     state: enabled
-  
+
+- name: install the riak rpm from a remote repo
+  yum:
+    name: https://files.tiot.jp/riak/kv/2.2/2.2.6/rhel/7/riak-2.2.6-1.el7.x86_64.rpm
+    state: present
+
 - name: "Copying riak kernel config file"
   copy:
     src: ../files/sysctl.conf
@@ -62,8 +67,11 @@
     owner: root
     group: root
     mode: 0644
-  notify:
-    - sysctl-update
+  register: copy_result
+
+- name: "Reload config immediately if there was a change"
+  command: "sysctl --system"
+  when: copy_result is changed
 
 - name: "Configuring resources limit"
   blockinfile:
@@ -74,16 +82,6 @@
       * soft nofile 65536
       * hard nofile 200000
   register: task_result
-
-- name: "printing stdout for debug"
-  when: verbose
-  debug:
-    var: task_result.stdout_lines
-
-- name: "printing stdout for debug"
-  when: verbose
-  debug:
-    var: task_result.stderr_lines
 
 - name: "Reboot immediately if there was a change."
   shell: "sleep 5 && reboot"
@@ -99,3 +97,11 @@
     timeout: "300"
   when: task_result is changed
 
+- name: "Config riak nodename"
+  lineinfile:
+    path: /etc/riak/riak.conf
+    regexp: '{{ item.key }}'
+    line: '{{ item.value }}'
+  loop:
+    - { key: '^nodename = ', value: 'nodename = riak@{{ private_ip }}' }
+    - { key: '^listener.http.internal = ', value: 'listener.http.internal = 0.0.0.0:8098'}
