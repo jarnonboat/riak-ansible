@@ -20,7 +20,7 @@
     block: |
       http_proxy=http://pt.wni.co.jp:8080
       https_proxy=http://pt.wni.co.jp:8080
-      no_proxy=localhost,127.0.0.1,riak1,riak2,riak3
+      no_proxy=localhost,127.0.0.1,riak1,riak2,riak3,192.168.56.105,192.168.56.106,192.168.56.107
   
 - name: "Installing EPEL"
   yum: 
