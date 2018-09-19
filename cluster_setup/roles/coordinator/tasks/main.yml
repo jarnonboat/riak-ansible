@@ -1,7 +1,27 @@
 - name: "View joining request"
   riak:
     command: plan
+  register: out
+
+- name: "View joining request for debug"
+  when: verbose
+  debug:
+    var: out.stdout_lines
+
+- name: "View joining request for debug"
+  when: verbose
+  debug:
+    var: out.stderr_lines
 
 - name: "Commit joning request"
   riak: 
     command: commit
+
+- name: "Riak Status"
+  shell: "riak-admin cluster status"
+  register: out
+
+- name: "View Riak cluster status"
+  when: verbose
+  debug:
+    var: out.stdout_lines
